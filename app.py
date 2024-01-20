@@ -8,7 +8,7 @@ import re
 from nltk.corpus import stopwords
 from nltk.stem import SnowballStemmer
 
-# Function to perform text summarization
+# Text summarization model
 def apply_summarization(text):
     summarizer = pipeline("summarization")
     summary = summarizer(text, max_length=100, min_length=10, do_sample=False)[0]["summary_text"]
@@ -38,9 +38,9 @@ def preprocess(text):
     tokens = [stemmer.stem(word) for word in text.split() if word not in stop_words]
     return ' '.join(tokens)
 
-# Function to perform information retrieval using TF-IDF and cosine similarity
+# Information retrieval using TF-IDF and cosine similarity
 def retrieve_information(query):
-    """IRS system using TF-IDF and cosine similarity to give the best results associated with the query"""
+    """IR system using TF-IDF and cosine similarity to give the best results associated with the query"""
     df = pd.read_csv('train_set.csv',index_col=0)
     # Combine relevant informations in one column
     df['information'] =  df['avis_en'] + df['produit'] + df["assureur"].str.lower()
@@ -56,7 +56,6 @@ def retrieve_information(query):
     df = df.sort_values(by='similarity', ascending=False)
     return df[['assureur', 'produit','avis_en','note','similarity']].head(10)
 
-
 st.title("Machine Learning for NLP Project")
 st.subheader("For each task, follow the instructions written and then click on the button *Analyze* to run the models")
 selected_action = st.selectbox("***Select the action that you want to perform***", ["Prediction", "Summary","Information Retrieval","QA"])
@@ -68,9 +67,7 @@ if selected_action == "Summary":
     if text_input_summary and analyze_button_summary:
         with st.spinner("**Summarization ongoing...**"):
             summary = apply_summarization(text_input_summary)
-            st.write("****Summary of the text :****")            
             st.write(f"***{summary}***")
-            
 
 elif selected_action == "Prediction":
     st.write("****Sentiment Analysis is performed with a supervised model****")
@@ -79,7 +76,6 @@ elif selected_action == "Prediction":
     if text_input_prediction and analyze_button_prediction:
         with st.spinner("**Sentiment Analysis ongoing...**"):
             sentiment_label, sentiment_score = apply_sentiment_analysis(text_input_prediction)
-            st.write("****Results :****")
             st.write(f"***Sentiment Detected : {sentiment_label}***")
             st.write(f"***Score : {sentiment_score}***")
 
@@ -100,4 +96,4 @@ elif selected_action == "QA":
     if text_input_qa and analyze_button_qa and query_qa :
         with st.spinner("**Please wait for the answer...**"):
             answer = apply_qa(text_input_qa,query_qa)
-            st.write(f"***Answer : {answer}***")
+            st.write(f"***{answer}***")
