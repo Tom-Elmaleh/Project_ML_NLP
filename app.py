@@ -58,7 +58,7 @@ def retrieve_information(query):
 
 st.title("Machine Learning for NLP Project")
 st.subheader("For each task, follow the instructions written and then click on the button *Analyze* to run the models")
-selected_action = st.selectbox("***Select the action that you want to perform***", ["Prediction", "Summary","Information Retrieval","QA"])
+selected_action = st.selectbox("***Select the action that you want to perform***", ["Sentiment Analysis", "Summary","Information Retrieval","QA"])
 
 if selected_action == "Summary":
     st.write("****Summarization is performed with a supervised model****")
@@ -69,13 +69,13 @@ if selected_action == "Summary":
             summary = apply_summarization(text_input_summary)
             st.write(f"***{summary}***")
 
-elif selected_action == "Prediction":
+elif selected_action == "Sentiment Analysis":
     st.write("****Sentiment Analysis is performed with a supervised model****")
-    text_input_prediction = st.text_area("***Enter your text for sentiment analysis***", height=5)
-    analyze_button_prediction = st.button("****Analyze****", key="analyze_button_prediction")
-    if text_input_prediction and analyze_button_prediction:
+    text_input_sa = st.text_area("***Enter your text for sentiment analysis***", height=5)
+    analyze_button_sa = st.button("****Analyze****", key="analyze_button_prediction")
+    if text_input_sa and analyze_button_sa:
         with st.spinner("**Sentiment Analysis ongoing...**"):
-            sentiment_label, sentiment_score = apply_sentiment_analysis(text_input_prediction)
+            sentiment_label, sentiment_score = apply_sentiment_analysis(text_input_sa)
             st.write(f"***Sentiment Detected : {sentiment_label}***")
             st.write(f"***Score : {sentiment_score}***")
 
