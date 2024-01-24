@@ -13,7 +13,7 @@ nltk.download('stopwords')
 import torch 
   
 # Preprocessing for sentiment analysis
-@st.cache(allow_output_mutation=True)
+#@st.cache_data(allow_output_mutation=True)
 def clean_sentence(val):
     """ Cette fonction permet de supprimer les caractères spéciaux et les mots de taille inférieure à 2
     pour la tâche de summarization"""
@@ -29,7 +29,7 @@ def clean_sentence(val):
     sentence = " ".join(sentence) 
     return sentence
 
-@st.cache(allow_output_mutation=True)
+#@st.cache_data(allow_output_mutation=True)
 def preprocess(text):
     # Remove special characters and put in lower case
     text = re.sub(r'[^a-zA-Z\s]', '', text.lower())
@@ -40,11 +40,11 @@ def preprocess(text):
     return ' '.join(tokens)
 
 # Token limit
-@st.cache(allow_output_mutation=True)
+@st.cache_data(allow_output_mutation=True)
 def load_tokenizer(model_name):
     return AutoTokenizer.from_pretrained(model_name)
 
-@st.cache(allow_output_mutation=True)
+#@st.cache_data(allow_output_mutation=True)
 def truncate_review(review, max_length, model_name):
     """Function to take into account the token limit of models by truncating tokens"""
     # Load the tokenizer
@@ -57,11 +57,11 @@ def truncate_review(review, max_length, model_name):
     return review_truncated
 
 # Summarizer
-@st.cache(allow_output_mutation=True)
+@st.cache_data(allow_output_mutation=True)
 def load_summarizer():
     return pipeline("summarization", model='sshleifer/distilbart-cnn-12-6')
 
-@st.cache(allow_output_mutation=True)
+#@st.cache_data(allow_output_mutation=True)
 def apply_summarization(text):
     summarizer = load_summarizer()
     text_truncated = truncate_review(text, max_length=1024, model_name='sshleifer/distilbart-cnn-12-6')
@@ -69,12 +69,12 @@ def apply_summarization(text):
     summary = summary.strip()
     return summary
 
-@st.cache(allow_output_mutation=True)
+@st.cache_data(allow_output_mutation=True)
 def load_classifier():
     return  pipeline(model="distilbert-base-uncased-finetuned-sst-2-english")
 
 # Sentiment analysis model
-@st.cache(allow_output_mutation=True)
+#@st.cache_data(allow_output_mutation=True)
 def apply_sentiment_analysis(text):
     """Function which applies a sentiment analysis"""
     text = clean_sentence(text)
@@ -83,13 +83,12 @@ def apply_sentiment_analysis(text):
     sentiments = classifier(text)[0]
     return sentiments['label'], sentiments['score']
 
-
 # QA model
-@st.cache(allow_output_mutation=True)
+@st.cache_data(allow_output_mutation=True)
 def load_qa():
     return  pipeline(model="deepset/roberta-base-squad2")
 
-@st.cache(allow_output_mutation=True)
+#@st.cache_data(allow_output_mutation=True)
 def apply_qa(text,query):
     """Function to apply a QA model"""
     oracle = load_qa()
@@ -98,12 +97,12 @@ def apply_qa(text,query):
     answer = oracle(question=query, context=text)['answer']
     return answer
 
-@st.cache(allow_output_mutation=True)
+@st.cache_data(allow_output_mutation=True)
 def load_text_classif():
     return  pipeline("text-classification", model="nlptown/bert-base-multilingual-uncased-sentiment")
 
 # Rating prediction model
-@st.cache(allow_output_mutation=True)
+#@st.cache_data(allow_output_mutation=True)
 def apply_prediction(review):
     """Function to apply a the rating prediction model"""
     sentiment_pipeline = load_text_classif()
@@ -111,7 +110,7 @@ def apply_prediction(review):
     result = sentiment_pipeline(review)[0]
     return result['label'],result['score']
 
-@st.cache(allow_output_mutation=True)
+#@st.cache_data(allow_output_mutation=True)
 # Information retrieval using TF-IDF and cosine similarity
 def retrieve_information(query):
     """IR system using TF-IDF and cosine similarity to give the best results associated with the query"""
