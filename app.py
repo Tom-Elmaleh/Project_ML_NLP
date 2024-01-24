@@ -7,6 +7,9 @@ from sklearn.metrics.pairwise import cosine_similarity
 import re
 from nltk.corpus import stopwords
 from nltk.stem import SnowballStemmer
+from transformers import AutoTokenizer
+import nltk
+nltk.download('stopwords')
   
 # Preprocessing for sentiment analysis
 def clean_sentence(val):
@@ -33,10 +36,23 @@ def preprocess(text):
     stemmer = SnowballStemmer('english')
     tokens = [stemmer.stem(word) for word in text.split() if word not in stop_words]
     return ' '.join(tokens)
+
+# Token limit
+def truncate_review(review, max_length, model_name):
+    """Function to take into account the token limit of models by truncating tokens"""
+    # Load the tokenizer
+    tokenizer = AutoTokenizer.from_pretrained(model_name)
+    # Tokenize the review and truncate tokens
+    tokens = tokenizer(review, return_tensors="pt", truncation=True)
+    tokens_truncated = {key: value[:, :max_length] for key, value in tokens.items()}
+    # Convert the truncated tokens to a string
+    review_truncated = tokenizer.decode(tokens_truncated["input_ids"][0], skip_special_tokens=True)
+    return review_truncated
  
 # Text summarization model
 def apply_summarization(text):
-    summarizer = pipeline("summarization")
+    summarizer = pipeline("summarization",model='facebook/bart-large-cnn')
+    text = truncate_review(text, max_length=1024, model_name='facebook/bart-large-cnn')
     summary = summarizer(text, max_length=150, min_length=40, do_sample=False)[0]["summary_text"]
     return summary
 
@@ -45,6 +61,7 @@ def apply_sentiment_analysis(text):
     """Function which applies a sentiment analysis"""
     text = clean_sentence(text)
     classifier = pipeline(model="distilbert-base-uncased-finetuned-sst-2-english")
+    text = truncate_review(text, max_length=128, model_name='distilbert-base-uncased-finetuned-sst-2-english')
     sentiments = classifier(text)[0]
     return sentiments['label'], sentiments['score']
 
@@ -52,8 +69,18 @@ def apply_sentiment_analysis(text):
 def apply_qa(text,query):
     """Function to apply a QA model"""
     oracle = pipeline(model="deepset/roberta-base-squad2")
+    text = truncate_review(text, max_length=386, model_name='deepset/roberta-base-squad2')
+    query = truncate_review(query, max_length=64, model_name='deepset/roberta-base-squad2')
     answer = oracle(question=query, context=text)['answer']
     return answer
+
+# Rating prediction model
+def apply_prediction(review):
+    """Function to apply a the rating prediction model"""
+    sentiment_pipeline = pipeline("text-classification", model="nlptown/bert-base-multilingual-uncased-sentiment")
+    review = truncate_review(review, max_length=512, model_name='nlptown/bert-base-multilingual-uncased-sentiment')
+    result = sentiment_pipeline(review)[0]
+    return result['label'],result['score']
 
 # Information retrieval using TF-IDF and cosine similarity
 def retrieve_information(query):
@@ -75,12 +102,6 @@ def retrieve_information(query):
     df = df.sort_values(by='similarity', ascending=False)
     return df[['assureur', 'produit','avis_en','note','similarity']].head(10)
 
-# Rating prediction model
-def apply_prediction(review):
-    """Function to apply a the rating prediction model"""
-    sentiment_pipeline = pipeline("text-classification", model="nlptown/bert-base-multilingual-uncased-sentiment")
-    result = sentiment_pipeline(review)[0]
-    return result['label'],result['score']
     
 st.title("Machine Learning for NLP Project")
 st.subheader("For each task, follow the instructions written and then click on the button *Analyze* to run the models")
