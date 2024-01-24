@@ -49,18 +49,11 @@ def truncate_review(review, max_length, model_name):
     review_truncated = tokenizer.decode(tokens_truncated["input_ids"][0], skip_special_tokens=True)
     return review_truncated
  
-# # Text summarization model
-# def apply_summarization(text):
-#     summarizer = pipeline("summarization",model='facebook/bart-large-cnn')
-#     text = truncate_review(text, max_length=1024, model_name='facebook/bart-large-cnn')
-#     summary = summarizer(text, max_length=150, min_length=40, do_sample=False)[0]["summary_text"]
-#     return summary
-
-
 def apply_summarization(text):
     summarizer = pipeline("summarization", model='sshleifer/distilbart-cnn-12-6')
     text_truncated = truncate_review(text, max_length=1024, model_name='sshleifer/distilbart-cnn-12-6')
-    summary = summarizer(text_truncated, max_length=150, min_length=40, do_sample=False)[0]["summary_text"]
+    summary = summarizer(text_truncated, max_length=100, min_length=20, do_sample=False)[0]["summary_text"]
+    summary = summary.strip()
     return summary
 
 # Sentiment analysis model
