@@ -28,15 +28,14 @@ def clean_sentence(val):
     sentence = " ".join(sentence) 
     return sentence
 
-# Preprocessing the text (not working when deploying)
-# def preprocess(text):
-#     # Remove special characters and put in lower case
-#     text = re.sub(r'[^a-zA-Z\s]', '', text.lower())
-#     # Tokenization, remove stop words, and stemming
-#     stop_words = set(stopwords.words('english'))
-#     stemmer = SnowballStemmer('english')
-#     tokens = [stemmer.stem(word) for word in text.split() if word not in stop_words]
-#     return ' '.join(tokens)
+def preprocess(text):
+    # Remove special characters and put in lower case
+    text = re.sub(r'[^a-zA-Z\s]', '', text.lower())
+    # Tokenization, remove stop words, and stemming
+    stop_words = set(stopwords.words('english'))
+    stemmer = SnowballStemmer('english')
+    tokens = [stemmer.stem(word) for word in text.split() if word not in stop_words]
+    return ' '.join(tokens)
 
 # Token limit
 def truncate_review(review, max_length, model_name):
@@ -50,11 +49,18 @@ def truncate_review(review, max_length, model_name):
     review_truncated = tokenizer.decode(tokens_truncated["input_ids"][0], skip_special_tokens=True)
     return review_truncated
  
-# Text summarization model
+# # Text summarization model
+# def apply_summarization(text):
+#     summarizer = pipeline("summarization",model='facebook/bart-large-cnn')
+#     text = truncate_review(text, max_length=1024, model_name='facebook/bart-large-cnn')
+#     summary = summarizer(text, max_length=150, min_length=40, do_sample=False)[0]["summary_text"]
+#     return summary
+
+
 def apply_summarization(text):
-    summarizer = pipeline("summarization",model='facebook/bart-large-cnn')
-    text = truncate_review(text, max_length=1024, model_name='facebook/bart-large-cnn')
-    summary = summarizer(text, max_length=150, min_length=40, do_sample=False)[0]["summary_text"]
+    summarizer = pipeline("summarization", model='sshleifer/distilbart-cnn-12-6')
+    text_truncated = truncate_review(text, max_length=1024, model_name='sshleifer/distilbart-cnn-12-6')
+    summary = summarizer(text_truncated, max_length=150, min_length=40, do_sample=False)[0]["summary_text"]
     return summary
 
 # Sentiment analysis model
@@ -90,8 +96,7 @@ def retrieve_information(query):
     # Combine relevant informations in one column
     df['information'] =  df['avis_en'] + df['produit'] + df["assureur"].str.lower()   
     # Application preprocessing
-    #df['information'] = df['information'].apply(preprocess)
-    df['information'] = df['information'].apply(clean_sentence)
+    df['information'] = df['information'].apply(preprocess)
     # Use Tf_idf vectorizer for the combined_text
     vectorizer = TfidfVectorizer()
     tfidf_matrix = vectorizer.fit_transform(df['information'])
