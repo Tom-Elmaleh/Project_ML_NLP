@@ -10,6 +10,7 @@ from nltk.stem import SnowballStemmer
 from transformers import AutoTokenizer
 import nltk
 nltk.download('stopwords')
+import torch 
   
 # Preprocessing for sentiment analysis
 def clean_sentence(val):
