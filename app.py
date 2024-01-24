@@ -28,14 +28,14 @@ def clean_sentence(val):
     return sentence
 
 # Preprocessing the text
-def preprocess(text):
-    # Remove special characters and put in lower case
-    text = re.sub(r'[^a-zA-Z\s]', '', text.lower())
-    # Tokenization, remove stop words, and stemming
-    stop_words = set(stopwords.words('english'))
-    stemmer = SnowballStemmer('english')
-    tokens = [stemmer.stem(word) for word in text.split() if word not in stop_words]
-    return ' '.join(tokens)
+# def preprocess(text):
+#     # Remove special characters and put in lower case
+#     text = re.sub(r'[^a-zA-Z\s]', '', text.lower())
+#     # Tokenization, remove stop words, and stemming
+#     stop_words = set(stopwords.words('english'))
+#     stemmer = SnowballStemmer('english')
+#     tokens = [stemmer.stem(word) for word in text.split() if word not in stop_words]
+#     return ' '.join(tokens)
 
 # Token limit
 def truncate_review(review, max_length, model_name):
@@ -87,9 +87,10 @@ def retrieve_information(query):
     """IR system using TF-IDF and cosine similarity to give the best results associated with the query"""
     df = pd.read_csv('train_set.csv',index_col=0)
     # Combine relevant informations in one column
-    df['information'] =  df['avis_en'] + df['produit'] + df["assureur"].str.lower()
+    df['information'] =  df['avis_en'] + df['produit'] + df["assureur"].str.lower()   
     # Application preprocessing
-    df['information'] = df['information'].apply(preprocess)
+    #df['information'] = df['information'].apply(preprocess)
+    df['information'] = df['information'].apply(clean_sentence)
     # Use Tf_idf vectorizer for the combined_text
     vectorizer = TfidfVectorizer()
     tfidf_matrix = vectorizer.fit_transform(df['information'])
