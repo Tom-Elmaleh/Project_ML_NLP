@@ -23,16 +23,16 @@ Finally, we set up an information retrieval model based on a query specified by 
 
 ### Streamlit Application
 
-Link towards the app : **https://init-version-nlp.streamlit.app/** (Version 1)
+Link towards the first version of the streamlit app developed : **https://init-version-nlp.streamlit.app/** <br>
 On the streamlit application, the following models have been implemented :
-▪ Sentiment Analysis (supervised model not trained on the dataset)
-▪ Summarization (supervised model not trained on the dataset)
-▪ Information retrieval (model trained on the dataset)
-▪ QA (supervised model not trained on the dataset)
-▪ Rating prediction (supervised model not trained on the dataset)
+  - Sentiment Analysis (supervised model not trained on the dataset) <br>
+  - Summarization (supervised model not trained on the dataset) <br>
+  - Information retrieval (model trained on the dataset) <br>
+  - QA (supervised model not trained on the dataset) <br>
+  - Rating prediction (supervised model not trained on the dataset) <br>
 
-We also created a second app accessible here : **https://tom-elmaleh-project-ml-nlp-app-v3-lduq3e.streamlit.app/**
-On this application a function ( truncate_review) has been implemented to check if the length of the input respects the token limitations of the model and if it’s not the case, the input is truncated.
+We also created a second app accesible through this link : **https://tom-elmaleh-project-ml-nlp-app-v3-lduq3e.streamlit.app/** <br>
+On this application a function (truncate_review) has been implemented to check if the length of the input respects the token limitations of the model and if it’s not the case, the input is truncated.
 
 #### Remarks on the Streamlit application
 
